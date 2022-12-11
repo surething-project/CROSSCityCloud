@@ -1,0 +1,33 @@
+apiVersion: container.gcp.crossplane.io/v1beta2
+kind: Cluster
+metadata:
+  name: playback-gke
+spec:
+  forProvider:
+    location: europe-west1
+    loggingService: logging.googleapis.com/kubernetes
+    monitoringService: monitoring.googleapis.com/kubernetes
+---
+apiVersion: container.gcp.crossplane.io/v1beta1
+kind: NodePool
+metadata:
+  name: playback-np
+spec:
+  forProvider:
+    clusterRef:
+      name: playback-gke
+    config:
+      machineType: e2-standard-2
+      diskSizeGb: 20
+      diskType: pd-standard
+      oauthScopes:
+      - "https://www.googleapis.com/auth/devstorage.read_only"
+      - "https://www.googleapis.com/auth/logging.write"
+      - "https://www.googleapis.com/auth/monitoring"
+      - "https://www.googleapis.com/auth/servicecontrol"
+      - "https://www.googleapis.com/auth/service.management.readonly"
+      - "https://www.googleapis.com/auth/trace.append"      
+    initialNodeCount: 1
+    locations:
+      - "europe-west1-b"
+      - "europe-west1-c"

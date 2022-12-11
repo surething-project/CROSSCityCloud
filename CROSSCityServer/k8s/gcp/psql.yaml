@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cross-psql-deployment
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cross-psql
+  template:
+    metadata:
+      labels:
+        app: cross-psql
+    spec:
+      containers:
+        - name: cross-psql
+          image: postgres:14.2-alpine
+          imagePullPolicy: "IfNotPresent"             
+          ports:
+            - containerPort: 5432
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          envFrom:
+            - secretRef:
+                name: cross-psql-secret
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+            - mountPath: /docker-entrypoint-initdb.d
+              name: cross-psql-init
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: psql-pv-claim
+        - name: cross-psql-init
+          projected:
+            sources:
+              - configMap:
+                  name: cross-psql-schema
+              - configMap:
+                  name: cross-psql-populate     
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cross-psql-service
+  labels:
+    app: cross-psql
+spec:
+  selector:
+    app: cross-psql
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

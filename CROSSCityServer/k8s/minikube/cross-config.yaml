@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: cross-server
+  name: cross-config
+data:
+  CROSS_SERVER: http://0.0.0.0:8080/
+  CROSS_DB_CONNECTION: cross-psql-service
+  CROSS_DB_NAME: cross

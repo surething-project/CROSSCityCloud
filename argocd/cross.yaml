@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cross
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    path: CROSSCityServer/k8s/gcp
+    repoURL: https://github.com/inesc-id/CROSSCityCloud
+    targetRevision: HEAD
+  destination:
+    namespace: default
+    server: https://34.79.20.119

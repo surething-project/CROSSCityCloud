@@ -1,0 +1,24 @@
+{
+  "name": "cross-k6",
+  "version": "1.0.0",
+  "description": "Performance Testing for CROSS City Cloud",
+  "main": "index.js",
+  "scripts": {
+    "bundle": "webpack"
+  },
+  "keywords": [],
+  "author": "Lucas Vicente",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.18.0",
+    "@babel/preset-env": "^7.18.0",
+    "babel-loader": "^8.2.5",
+    "core-js": "^3.22.6",
+    "k6": "0.0.0",
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "google-protobuf": "^3.19.4"
+  }
+}

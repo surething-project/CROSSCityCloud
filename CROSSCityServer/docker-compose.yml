@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  cross-psql:
+    image: postgres:14.2-alpine
+    container_name: cross-psql
+    restart: always
+    environment:
+      - POSTGRES_USER=cross
+      - POSTGRES_PASSWORD=cross
+    ports:
+      - '5432:5432'
+    volumes:
+      - cross-psql:/var/lib/postgresql/data
+      - ./src/main/resources/database/1-schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./src/main/resources/database/2-populate.sql:/docker-entrypoint-initdb.d/2-populate.sql
+  cross-server:
+    image: cross-server:latest
+    container_name: cross-server
+    depends_on:
+      - cross-psql
+    environment:
+      - CROSS_SERVER=http://0.0.0.0:8080/
+      - CROSS_DB_CONNECTION=cross-psql
+      - CROSS_DB_NAME=cross
+      - CROSS_DB_USER=cross
+    ports:
+      - '8080:8080'
+
+volumes:
+  cross-psql:
+    driver: local

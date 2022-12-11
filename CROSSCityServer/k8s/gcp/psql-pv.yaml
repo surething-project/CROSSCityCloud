@@ -1,0 +1,29 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: regionalpd-storageclass
+  labels:
+    type: cloud
+    app: cross-psql
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+allowedTopologies:
+  - matchLabelExpressions:
+      - key: failure-domain.beta.kubernetes.io/zone
+        values:
+          - europe-west1-b
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: psql-pv-claim
+  labels:
+    app: cross-psql
+spec:
+  storageClassName: regionalpd-storageclass
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi

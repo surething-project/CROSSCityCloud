@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cross-deployment
+  labels:
+    app: cross-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cross-server
+  template:
+    metadata:
+      labels:
+        app: cross-server
+    spec:
+      containers:
+      - name: cross-server
+        image: gcr.io/gsdsupport/cross-server-deploy:v1.0.0
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            cpu: "250m"
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: cross-secret
+        - configMapRef:
+            name: cross-config
+        volumeMounts:
+        - name: google-cloud-key
+          mountPath: /var/secrets/google
+      volumes:
+      - name: google-cloud-key
+        secret:
+          secretName: cross-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cross-service
+spec:
+  selector:
+    app: cross-server
+  ports:
+    - protocol: TCP
+      name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cross-hpa
+  labels:
+    app: cross-server
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cross-deployment
+  minReplicas: 1
+  maxReplicas: 1
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 40
